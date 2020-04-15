@@ -1,5 +1,7 @@
 # calculator
 
+https://spongebobgao.github.io/calculator/
+
 ## Project setup
 ```
 npm install
@@ -25,4 +27,4 @@ npm run test
 npm run lint
 ```
 
-https://spongebobgao.github.io/calculator/
+
