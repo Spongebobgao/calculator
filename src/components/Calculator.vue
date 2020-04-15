@@ -26,6 +26,8 @@ export default {
     return {
       current: 0,
       previous: 0,
+      decimalPlaces: 0,
+      temp: 0,
       newCurrent: false,
       operator: "",
       btnInfo: btnInfo
@@ -36,6 +38,13 @@ export default {
       if (this.newCurrent) {
         this.current = number;
         this.newCurrent = false;
+      } else if (this.decimalPlaces > 0) {
+        this.current = parseFloat(this.current);
+        this.current =
+          this.current < 0
+            ? this.current - number / Math.pow(10, this.decimalPlaces)
+            : this.current + number / Math.pow(10, this.decimalPlaces);
+        this.decimalPlaces++;
       } else {
         this.current =
           this.current < 0
@@ -45,8 +54,13 @@ export default {
     },
     getOperator(operator) {
       switch (operator) {
+        case ".":
+          if (this.current.toString().indexOf(".") === -1)
+            this.current = this.current.toString() + ".";
+          this.decimalPlaces = 1;
+          break;
         case "AC":
-          this.current = this.previous = 0;
+          this.current = this.previous = this.decimalPlaces = 0;
           this.newCurrent = false;
           this.operator = "";
           break;
@@ -55,12 +69,14 @@ export default {
           break;
         case "%":
           this.current = this.current / 100;
+          this.decimalPlaces = 0;
           this.newCurrent = true;
           break;
         case "+":
         case "-":
         case "x":
         case "/":
+          this.decimalPlaces = 0;
           if (this.operator === "" || this.newCurrent) {
             this.previous = this.current;
             this.operator = operator;
@@ -70,6 +86,8 @@ export default {
           }
           break;
         case "=":
+          this.newCurrent = true;
+          this.decimalPlaces = 0;
           if (this.newCurrent) {
             this.calculateItself();
           } else {
@@ -105,27 +123,22 @@ export default {
       }
     },
     calculateItself() {
-      this.newCurrent = true;
       switch (this.operator) {
         case "+":
-          this.current = this.previous = this.current + this.current;
-          this.operator = "";
+          this.current = this.current + this.previous;
           break;
         case "-":
-          this.current = this.previous = this.current - this.current;
-          this.operator = "";
+          this.current = this.previous - this.current;
           break;
         case "x":
-          this.current = this.previous = this.current * this.current;
-          this.operator = "";
+          this.current = this.current * this.previous;
           break;
         case "/":
           if (this.current === 0) {
             this.prevoius = this.current = 0;
           } else {
-            this.current = this.previous = this.current / this.current;
+            this.current = this.previous / this.current;
           }
-          this.operator = "";
           break;
       }
     }
