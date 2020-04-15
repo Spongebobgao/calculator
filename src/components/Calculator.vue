@@ -1,81 +1,179 @@
 <template>
   <div>
-    <h3>Lin's Calculator</h3>
+    <h2>Lin's Calculator</h2>
     <div class="calculator">
-    <div class="totoal">{{current || 0}}</div>
-    <div @click="clear" class="btn special">AC</div>
-    <div class="btn special">+/-</div>
-    <div class="btn special">%</div>
-    <div class="btn special">/</div>
-    <div class="btn">7</div>
-    <div class="btn">8</div>
-    <div class="btn">9</div>
-    <div class="btn special">x</div>
-    <div class="btn">4</div>
-    <div class="btn">5</div>
-    <div class="btn">6</div>
-    <div class="btn special">-</div>
-    <div class="btn">1</div>
-    <div class="btn">2</div>
-    <div class="btn">3</div>
-    <div class="btn special">+</div>
-    <div class="btn zero">0</div>
-    <div class="btn">.</div>
-    <div class="btn special">=</div>
+      <div class="totoal">
+        <div>{{current}}</div>
+      </div>
+      <div
+        v-for="(btn,index) of btnInfo"
+        :class="`${btn.digit?'btn':'btn special'}`"
+        :style="`${index===16?'width:190px':''}`"
+        :key="btn.value"
+        @click="`${btn.digit?appendNum(btn.value):getOperator(btn.value)}`"
+      >
+        <span>{{btn.value}}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import btnInfo from "../../btnInfo";
 export default {
-  name: 'Calculator',
-  data(){
+  name: "Calculator",
+  data() {
     return {
-      current: ''
-    }
+      current: 0,
+      previous: 0,
+      newCurrent: false,
+      operator: "",
+      btnInfo: btnInfo
+    };
   },
   methods: {
-    clear(){
-      this.current = ''
+    appendNum(number) {
+      if (this.newCurrent) {
+        this.current = number;
+        this.newCurrent = false;
+      } else {
+        this.current =
+          this.current < 0
+            ? this.current * 10 - number
+            : this.current * 10 + number;
+      }
+    },
+    getOperator(operator) {
+      switch (operator) {
+        case "AC":
+          this.current = this.previous = 0;
+          this.newCurrent = false;
+          this.operator = "";
+          break;
+        case "+/-":
+          this.current = -this.current;
+          break;
+        case "%":
+          this.current = this.current / 100;
+          this.newCurrent = true;
+          break;
+        case "+":
+        case "-":
+        case "x":
+        case "/":
+          if (this.operator === "" || this.newCurrent) {
+            this.previous = this.current;
+            this.operator = operator;
+            this.newCurrent = true;
+          } else {
+            this.calculate(operator);
+          }
+          break;
+        case "=":
+          if (this.newCurrent) {
+            this.calculateItself();
+          } else {
+            this.calculate(operator);
+          }
+          break;
+      }
+    },
+    calculate(operator) {
+      this.newCurrent = true;
+      switch (this.operator) {
+        case "+":
+          this.current = this.previous = this.previous + this.current;
+          this.operator = operator === "=" ? "" : operator;
+          break;
+        case "-":
+          this.current = this.previous = this.previous - this.current;
+          this.operator = operator === "=" ? "" : operator;
+          break;
+        case "x":
+          this.current = this.previous = this.previous * this.current;
+          this.operator = operator === "=" ? "" : operator;
+          break;
+        case "/":
+          if (this.current === 0) {
+            this.prevoius = this.current = 0;
+            this.operator = "";
+          } else {
+            this.current = this.previous = this.previous / this.current;
+            this.operator = operator === "=" ? "" : operator;
+          }
+          break;
+      }
+    },
+    calculateItself() {
+      this.newCurrent = true;
+      switch (this.operator) {
+        case "+":
+          this.current = this.previous = this.current + this.current;
+          this.operator = "";
+          break;
+        case "-":
+          this.current = this.previous = this.current - this.current;
+          this.operator = "";
+          break;
+        case "x":
+          this.current = this.previous = this.current * this.current;
+          this.operator = "";
+          break;
+        case "/":
+          if (this.current === 0) {
+            this.prevoius = this.current = 0;
+          } else {
+            this.current = this.previous = this.current / this.current;
+          }
+          this.operator = "";
+          break;
+      }
     }
-
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px;
-}
 .calculator {
-  width:450px;
-  height:450px;
-  display: grid;
-  grid-gap: 30px;
-  grid-template-columns: repeat(4,1fr);
-  grid-template-rows: auto;
-  background:black;
-  color:white;
-  padding:10px;
-  margin:auto;
+  width: 400px;
+  height: 450px;
+  font-size: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  background: black;
+  color: white;
+  padding: 10px;
+  margin: auto;
   border-radius: 5%;
 }
+.calculator > div {
+  display: flex;
+}
+.calculator :hover {
+  color: black;
+  background: white;
+}
 .totoal {
-  grid-column: 1/5;
-  font-size: 3rem;
+  width: 95%;
+  font-size: 33px;
+  margin: 0 2.5%;
+  justify-content: flex-end;
+  padding: 10px 0;
 }
 
 .btn {
-  width:40px;
-  height:40px;
-  border-radius: 50%;
+  width: 90px;
+  height: 60px;
   background: grey;
-  padding:0;
+  border-radius: 20%;
+  padding: 0;
   cursor: pointer;
+  margin: 5px;
+  justify-content: center;
 }
-.zero {
-  grid-column: 1/3;
+.btn > span {
+  align-self: center;
 }
 .special {
   background: orange;
