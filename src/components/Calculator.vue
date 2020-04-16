@@ -7,6 +7,7 @@
       </div>
       <button
         v-for="(btn,index) of btnInfo"
+        :id="`${index}`"
         :class="`${btn.digit?'btn':'btn special'}`"
         :style="`${index===16?'width:190px':''}`"
         :key="btn.value"
@@ -37,7 +38,6 @@ export default {
   methods: {
     keyPressEvent(e) {
       var valueEntered = e.key;
-      console.log(e);
       const digit = {
         "1": 1,
         "2": 2,
@@ -54,29 +54,33 @@ export default {
         "+": "+",
         "-": "-",
         x: "x",
+        X: "x",
         "/": "/",
         "=": "=",
         ".": ".",
-        C: "C",
-        c: "c",
+        C: "AC",
+        c: "AC",
         "%": "%",
-        S: "S",
-        s: "s"
+        S: "+/-",
+        s: "+/-",
+        "*": "x"
       };
-      if (digit[valueEntered] !== undefined)
+      if (digit[valueEntered] !== undefined) {
+        var index = btnInfo.findIndex(x => x.value === digit[valueEntered]);
+        this.setStyle(index);
         this.appendNum(digit[valueEntered]);
-      else if (operator[valueEntered]) {
-        if (operator[valueEntered] === "c" || operator[valueEntered] === "C") {
-          this.getOperator("AC");
-        } else if (
-          operator[valueEntered] === "s" ||
-          operator[valueEntered] === "S"
-        ) {
-          this.getOperator("+/-");
-        } else {
-          this.getOperator(operator[valueEntered]);
-        }
+      } else if (operator[valueEntered]) {
+        index = btnInfo.findIndex(x => x.value === operator[valueEntered]);
+        this.setStyle(index);
+        this.getOperator(operator[valueEntered]);
       }
+    },
+    setStyle(index) {
+      var element = document.getElementById(index);
+      element.classList.add("keyBoard");
+      setTimeout(function() {
+        element.classList.remove("keyBoard");
+      }, 200);
     },
     appendNum(number) {
       if (this.newCurrent) {
@@ -225,20 +229,6 @@ export default {
         )
       );
     }
-    // ready() {
-    //   window.addEventListener("keypress", function(e) {
-    //     var keycode = e.which || e.keyCode;
-    //     var valueEntered = String.fromCharCode(keycode);
-    //     var digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-    //     var operators = ["+", "-", "x", "/", "=", ".", "C", "c", "%", "+/-"];
-    //     if (digits.includes(valueEntered)) {
-    //       this.appendNum(parseFloat(valueEntered));
-    //     } else if (operators.includes(valueEntered)) {
-    //       this.getOperator(valueEntered);
-    //       console.log(valueEntered, "operator");
-    //     }
-    //   });
-    // }
   }
 };
 </script>
@@ -287,5 +277,9 @@ button {
 }
 .special {
   background: orange;
+}
+.keyBoard {
+  background: white;
+  color: black;
 }
 </style>
