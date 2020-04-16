@@ -2,18 +2,16 @@
   <div>
     <h2>Lin's Calculator</h2>
     <div class="calculator">
-      <div class="totoal">
+      <div class="total">
         <div>{{current}}</div>
       </div>
-      <div
+      <button
         v-for="(btn,index) of btnInfo"
         :class="`${btn.digit?'btn':'btn special'}`"
         :style="`${index===16?'width:190px':''}`"
         :key="btn.value"
         @click="`${btn.digit?appendNum(btn.value):getOperator(btn.value)}`"
-      >
-        <span>{{btn.value}}</span>
-      </div>
+      >{{btn.value}}</button>
     </div>
   </div>
 </template>
@@ -55,9 +53,10 @@ export default {
     getOperator(operator) {
       switch (operator) {
         case ".":
-          if (this.current.toString().indexOf(".") === -1)
+          if (this.current.toString().indexOf(".") === -1) {
             this.current = this.current.toString() + ".";
-          this.decimalPlaces = 1;
+            this.decimalPlaces = 1;
+          }
           break;
         case "AC":
           this.current = this.previous = this.decimalPlaces = 0;
@@ -86,61 +85,98 @@ export default {
           }
           break;
         case "=":
-          this.newCurrent = true;
           this.decimalPlaces = 0;
           if (this.newCurrent) {
             this.calculateItself();
           } else {
+            this.newCurrent = true;
             this.calculate(operator);
           }
           break;
       }
     },
     calculate(operator) {
-      this.newCurrent = true;
+      var temp = this.current;
+      var currentDecimal =
+        this.current.toString().indexOf(".") === -1
+          ? 0
+          : this.current.toString().split(".")[1].length;
+      var previousDecimal =
+        this.previous.toString().indexOf(".") === -1
+          ? 0
+          : this.previous.toString().split(".")[1].length;
       switch (this.operator) {
         case "+":
-          this.current = this.previous = this.previous + this.current;
-          this.operator = operator === "=" ? "" : operator;
+          this.current = this.previous + this.current;
+          this.formatCurrent(this.current, currentDecimal, previousDecimal);
+          this.previous = temp;
+          this.operator = operator === "=" ? this.operator : operator;
           break;
         case "-":
-          this.current = this.previous = this.previous - this.current;
-          this.operator = operator === "=" ? "" : operator;
+          this.current = this.previous - this.current;
+          this.formatCurrent(this.current, currentDecimal, previousDecimal);
+          this.previous = temp;
+          this.operator = operator === "=" ? this.operator : operator;
           break;
         case "x":
-          this.current = this.previous = this.previous * this.current;
-          this.operator = operator === "=" ? "" : operator;
+          this.current = this.previous * this.current;
+          this.current = parseFloat(
+            this.current.toFixed(currentDecimal + previousDecimal)
+          );
+          this.previous = temp;
+          this.operator = operator === "=" ? this.operator : operator;
           break;
         case "/":
           if (this.current === 0) {
             this.prevoius = this.current = 0;
             this.operator = "";
           } else {
-            this.current = this.previous = this.previous / this.current;
-            this.operator = operator === "=" ? "" : operator;
+            this.current = this.previous / this.current;
+            this.previous = temp;
+            this.operator = operator === "=" ? this.operator : operator;
           }
           break;
       }
     },
     calculateItself() {
+      var indexCurrent =
+        this.current.toString().indexOf(".") === -1
+          ? 0
+          : this.current.toString().split(".")[1].length;
+      var indexPrevious =
+        this.previous.toString().indexOf(".") === -1
+          ? 0
+          : this.previous.toString().split(".")[1].length;
       switch (this.operator) {
         case "+":
           this.current = this.current + this.previous;
+          this.formatCurrent(this.current, indexCurrent, indexPrevious);
           break;
         case "-":
-          this.current = this.previous - this.current;
+          this.current = this.current - this.previous;
+          this.formatCurrent(this.current, indexCurrent, indexPrevious);
           break;
         case "x":
           this.current = this.current * this.previous;
+          this.current = parseFloat(
+            this.current.toFixed(indexPrevious + indexCurrent)
+          );
           break;
         case "/":
           if (this.current === 0) {
             this.prevoius = this.current = 0;
           } else {
-            this.current = this.previous / this.current;
+            this.current = this.current / this.previous;
           }
           break;
       }
+    },
+    formatCurrent(current, currentDecimal, previousDecimal) {
+      this.current = parseFloat(
+        this.current.toFixed(
+          currentDecimal >= previousDecimal ? currentDecimal : previousDecimal
+        )
+      );
     }
   }
 };
@@ -151,7 +187,6 @@ export default {
 .calculator {
   width: 400px;
   height: 450px;
-  font-size: 1.5rem;
   display: flex;
   flex-wrap: wrap;
   background: black;
@@ -160,33 +195,34 @@ export default {
   margin: auto;
   border-radius: 5%;
 }
-.calculator > div {
-  display: flex;
-}
 .calculator :hover {
   color: black;
   background: white;
 }
-.totoal {
+
+.total {
   width: 95%;
   font-size: 33px;
   margin: 0 2.5%;
+  display: flex;
   justify-content: flex-end;
   padding: 10px 0;
 }
-
+button {
+  outline: none;
+  border: none;
+  color: white;
+}
 .btn {
   width: 90px;
   height: 60px;
   background: grey;
   border-radius: 20%;
+  font-size: 1.5rem;
   padding: 0;
   cursor: pointer;
   margin: 5px;
   justify-content: center;
-}
-.btn > span {
-  align-self: center;
 }
 .special {
   background: orange;
