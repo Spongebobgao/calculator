@@ -36,8 +36,8 @@ export default {
   },
   methods: {
     keyPressEvent(e) {
-      console.log(e);
       var valueEntered = e.key;
+      console.log(e);
       const digit = {
         "1": 1,
         "2": 2,
@@ -60,12 +60,11 @@ export default {
         C: "C",
         c: "c",
         "%": "%",
-        "+/-": "+/-",
         S: "S",
         s: "s"
       };
-
-      if (digit[valueEntered]) this.appendNum(digit[valueEntered]);
+      if (digit[valueEntered] !== undefined)
+        this.appendNum(digit[valueEntered]);
       else if (operator[valueEntered]) {
         if (operator[valueEntered] === "c" || operator[valueEntered] === "C") {
           this.getOperator("AC");
@@ -143,6 +142,7 @@ export default {
       }
     },
     calculate(operator) {
+      this.newCurrent = true;
       var temp = this.current;
       var currentDecimal =
         this.current.toString().indexOf(".") === -1
