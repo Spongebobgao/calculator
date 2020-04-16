@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Lin's Calculator</h2>
+    <h3>For keyboard input, please press C to clear and S for +/-</h3>
     <div class="calculator">
       <div class="total">
         <div>{{current}}</div>
@@ -31,7 +31,54 @@ export default {
       btnInfo: btnInfo
     };
   },
+  created() {
+    window.addEventListener("keypress", this.keyPressEvent);
+  },
   methods: {
+    keyPressEvent(e) {
+      console.log(e);
+      var valueEntered = e.key;
+      const digit = {
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "0": 0
+      };
+      const operator = {
+        "+": "+",
+        "-": "-",
+        x: "x",
+        "/": "/",
+        "=": "=",
+        ".": ".",
+        C: "C",
+        c: "c",
+        "%": "%",
+        "+/-": "+/-",
+        S: "S",
+        s: "s"
+      };
+
+      if (digit[valueEntered]) this.appendNum(digit[valueEntered]);
+      else if (operator[valueEntered]) {
+        if (operator[valueEntered] === "c" || operator[valueEntered] === "C") {
+          this.getOperator("AC");
+        } else if (
+          operator[valueEntered] === "s" ||
+          operator[valueEntered] === "S"
+        ) {
+          this.getOperator("+/-");
+        } else {
+          this.getOperator(operator[valueEntered]);
+        }
+      }
+    },
     appendNum(number) {
       if (this.newCurrent) {
         this.current = number;
@@ -178,6 +225,20 @@ export default {
         )
       );
     }
+    // ready() {
+    //   window.addEventListener("keypress", function(e) {
+    //     var keycode = e.which || e.keyCode;
+    //     var valueEntered = String.fromCharCode(keycode);
+    //     var digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    //     var operators = ["+", "-", "x", "/", "=", ".", "C", "c", "%", "+/-"];
+    //     if (digits.includes(valueEntered)) {
+    //       this.appendNum(parseFloat(valueEntered));
+    //     } else if (operators.includes(valueEntered)) {
+    //       this.getOperator(valueEntered);
+    //       console.log(valueEntered, "operator");
+    //     }
+    //   });
+    // }
   }
 };
 </script>
