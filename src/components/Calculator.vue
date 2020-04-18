@@ -160,13 +160,13 @@ export default {
         case "+":
           this.current = this.previous + this.current;
           this.formatCurrent(this.current, currentDecimal, previousDecimal);
-          this.previous = temp;
+          this.previous = operator === "=" ? temp : this.current;
           this.operator = operator === "=" ? this.operator : operator;
           break;
         case "-":
           this.current = this.previous - this.current;
           this.formatCurrent(this.current, currentDecimal, previousDecimal);
-          this.previous = temp;
+          this.previous = operator === "=" ? temp : this.current;
           this.operator = operator === "=" ? this.operator : operator;
           break;
         case "x":
@@ -174,7 +174,7 @@ export default {
           this.current = parseFloat(
             this.current.toFixed(currentDecimal + previousDecimal)
           );
-          this.previous = temp;
+          this.previous = operator === "=" ? temp : this.current;
           this.operator = operator === "=" ? this.operator : operator;
           break;
         case "/":
@@ -183,7 +183,7 @@ export default {
             this.operator = "";
           } else {
             this.current = this.previous / this.current;
-            this.previous = temp;
+            this.previous = operator === "=" ? temp : this.current;
             this.operator = operator === "=" ? this.operator : operator;
           }
           break;
